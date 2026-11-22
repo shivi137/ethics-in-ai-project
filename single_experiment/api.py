@@ -1,4 +1,4 @@
-import urllib
+import urllib.request, urllib.error
 import json
 import time
 from utils_generalPurpose import tokenUsageInfo
