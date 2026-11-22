@@ -1,18 +1,20 @@
 from runner_orchestrator import run_model
 import os
 
-
-tag = ""
-model = ""
-keyEnv = ""
-extra = {}
-baseUrl = ""
+from api import call_openai_chat
 
 
-def modelSpecificCall(): # will take 3 different arguments system, user, temperature
-    return 
+tag = "deepseek"
+model = "deepseek-flash"
+keyEnv = "deepseek_api_key"
+baseUrl = "https://api.deepseek.com"
+extra = {"thinking":  {"type":"disabled"}}
 
 
+
+def modelSpecificCall(system, user, temperature): # will take 3 different arguments system, user, temperature
+
+    return call_openai_chat(model,  system, user, temperature, extra, baseUrl, os.environ[keyEnv])    # os.environ[keyEnv] is not a problem here, as in below code of run_model, we're just passing this function call, not actually calling it.
 
 
 
