@@ -8,7 +8,7 @@ tag = "deepseek"
 modelname = "deepseek-flash"
 keyEnvVar = "deepseek_api_key"
 baseUrl = "https://api.deepseek.com"
-extra = {"thinking":  {"type":"disabled"}}
+extra = {"thinking":  {"type":"disabled"}, "max_tokens": 1024}
 
 
 

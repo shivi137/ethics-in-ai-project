@@ -7,7 +7,7 @@ import os
 
 
 tag = "qwen"
-extra = {"reasoning_effort": "none"}
+extra = {"reasoning_effort": "none", "max_completion_tokens": 1024}
 modelname = "qwen-3.8-27b"
 baseUrl = "https://api.cerebras.ai/v1"
 keyEnvVar = "cerebras_api_key"

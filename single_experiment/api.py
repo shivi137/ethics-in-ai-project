@@ -19,13 +19,19 @@ def post(url, headers, body, tries=5):    #   sending request to api of llm mode
 
 
         except urllib.error.HTTPError as error:   #  busy  or server problem
-            retry = (429, 500, 502, 503, 529)                           # list of errors which are worth retrying, I looked it up on google
+            retry = (429, 500, 502,  503, 504,  529)                           # list of errors which are worth retrying, I looked it up on google
             if error.code in retry and currentRetryNo < tries - 1:    # 
                 time.sleep(2 ** currentRetryNo * 2)       # exponential backoff. wait 2 then 4 tne 8 and so on
                 continue
 
 
             raise RuntimeError(error.read().decode()[:500])    #otherwise just throow an error, with first 500 chrs
+
+        except (urllib.error.URLError, TimeoutError, ConnectionError):   # network-level problems (timeout, reset, DNS). HTTPError is a subclass of URLError, so it must stay above.
+            if currentRetryNo < tries - 1:
+                time.sleep(2 ** currentRetryNo * 2)
+                continue
+            raise
 
 
 def call_openai_chat(model, system, user, temp, extraOptions, base, key):   #    sending   ques to  OpenAI-style API ( for Qwen via Cerebras,  DeepSeek) and returns model reply, extra info

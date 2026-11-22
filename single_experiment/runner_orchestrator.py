@@ -118,19 +118,30 @@ def runModel(modelTag, modelName, callFunc, extraOptions, apiKeyEnvVariable):   
     #-------------------------------------
 
 
+    def jobKey(model, id_, lang, run, phash, sett):
+        
+        return (model, id_, lang, run, phash, json.dumps(sett, sort_keys=True))
+
     alreadyFinished = set()    #   empty set, which will remember  calls finished with no error 
 
     if os.path.exists(output):                                  # check if the output file already exists
         with open(output, encoding="utf-8") as file:             # open it
             for line in file:                                   # read line by line
-                runResult = json.loads(line)                      # convert each line to python dictionary
+                if not line.strip():
+                    continue
+                try:
+                    runResult = json.loads(line)                  # convert each line to python dictionary
+                except json.JSONDecodeError:
+                    continue                                      # half-written line from a crash: ignore, that job just reruns
 
                 if not runResult.get("error"):                     # to cehck if the run was success
-                    alreadyFinished.add((                              # store into set
+                    alreadyFinished.add(jobKey(                        # store into set
                         runResult["model"],
                         runResult["id"],
                         runResult["language"],
-                        runResult["run"]
+                        runResult["run"],
+                        runResult.get("prompt_hash"),
+                        runResult.get("settings")
                     ))
 
 
@@ -163,64 +174,75 @@ def runModel(modelTag, modelName, callFunc, extraOptions, apiKeyEnvVariable):   
 
 
 
-        try:
-            text, thinking, metaData = callFunc(
-                system,
-                row["text"],
-                arguments.temp
-            )   #  asking model ques 
+        maxAttempts = 3                       # unparseable replies (prose, broken JSON, invented label) are asked again up to this many times
+        totalUsage = {"in": 0, "out": 0, "reasoning": 0}
+        llmResult = None
+        text, thinking, metaData = "", None, {}
 
-        except Exception as error:
-            if block_words(error):     # if blocked because of block phrases, then return this below
-                return {
-                    **base,               # base is expsnded for its key value pairs
-                    "label": "blocked",
+        for attempt in range(1, maxAttempts + 1):
+            try:
+                text, thinking, metaData = callFunc(
+                    system,
+                    row["text"],
+                    arguments.temp
+                )   #  asking model ques
+
+            except Exception as error:
+                if block_words(error):     # if blocked because of block phrases, then return this below
+                    return {
+                        **base,               # base is expsnded for its key value pairs
+                        "label": "blocked",
+                        "reason": None,
+                        "raw": str(error)[:500],     # limit too 500 characters of error message
+                        "thinking_used": None,
+                        "finish": "blocked_error",
+                        "usage": None,
+                        "resp_model": None,
+                        "attempts": attempt,
+                        "ts": times(),
+                        "error": None
+                    }
+
+                return {          # if not contain any block phrases, then return this
+                    **base,               # base is expanded for its key value pairs
+                    "label": None,
                     "reason": None,
-                    "raw": str(error)[:500],     # limit too 500 characters of error message
+                    "raw": None,
                     "thinking_used": None,
-                    "finish": "blocked_error",
+                    "finish": None,
                     "usage": None,
                     "resp_model": None,
+                    "attempts": attempt,
                     "ts": times(),
-                    "error": None
-                } 
+                    "error": str(error)
+                }   #  other error (rerun the script to retry these)
 
+            for k in totalUsage:                              # cost of every attempt counts
+                totalUsage[k] += (metaData.get("usage") or {}).get(k, 0) or 0
 
+            if metaData.get("blocked"):
+                llmResult = { "label": "blocked", "reason": None}    # api says response is blocked: do not retry
+                break
 
-            return {          # if not contain any block phrases, then return this
-                **base,               # base is expanded for its key value pairs
-                "label": None,
-                "reason": None,
-                "raw": None,
-                "thinking_used": None,
-                "ts": times(),
-                "error": str(error)
-            }   #  other error 
-
-
-
-        if metaData.get("blocked"):
-            llmResult = { "label": "blocked", "reason": None}    # if llm api indicates response is blocked, so return this
-        else:
             try:
                 llmResult = responseDesision(text)   # change llm reply to label and reason
+                break
             except Exception:
-                llmResult = { "label": "invalid_output",  "reason": None }
-
-
+                llmResult = { "label": "invalid_output",  "reason": None }   # try again unless this was the last attempt
 
         return {
             **base,              # base is expanded for its key value pairss
             "label": llmResult["label"],
             "reason": llmResult["reason"],
-            "raw": (text or "")[:500],    # if none or empty, use empty string and then chose 500 first character 
+            "raw": (text or "")[:2000],    # raw reply of the last attempt (2000 chars so invalid replies can be inspected)
             "thinking_used": thinking,
             "finish": metaData.get("finish"),
-            "usage": metaData.get("usage"),
+            "usage": totalUsage,
             "resp_model": metaData.get("resp_model"),
+            "attempts": attempt,
             "ts": times(),       # just timestamp
             "error": None
-        }  
+        }
 
     #----------------------------------------------------------------------------------------
 
@@ -229,7 +251,7 @@ def runModel(modelTag, modelName, callFunc, extraOptions, apiKeyEnvVariable):   
 
     for runVar in range(arguments.noOfRuns):
         for particularRow in scenarios:
-            callJob = (modelName, particularRow["id"], particularRow["language"], runVar)    # creates a tuple for identifyng a particular job
+            callJob = jobKey(modelName, particularRow["id"], particularRow["language"], runVar, promptHASH_firstTwelve, settings)    # identifies a particular job + its conditions
 
             if callJob not in alreadyFinished:
                 jobs.append((runVar, particularRow))        #just add the unfinished job to list
@@ -247,7 +269,8 @@ def runModel(modelTag, modelName, callFunc, extraOptions, apiKeyEnvVariable):   
 
     with open(output, "a", encoding="utf-8") as file:            # a in arg here means append, so new reslts are appeded, and utf encoding supportes chars for many langs
         # output argument is defined at the beginnng of this run_model func
-        with ThreadPoolExecutor(max_workers=arguments.noOfWorkers) as executor:   # run parallel 
+        executor = ThreadPoolExecutor(max_workers=arguments.noOfWorkers)   # run parallel
+        try:
             futures = [
                 executor.submit(work, run, row)          # this just runs the work func with args as run and row.
                 for run, row in jobs
@@ -255,14 +278,19 @@ def runModel(modelTag, modelName, callFunc, extraOptions, apiKeyEnvVariable):   
 
             for number, future in enumerate(as_completed(futures), 1):       # get the results one by one as they cmplete
                 file.write(
-                    json.dumps(future.result(), ensure_ascii=False) + "\n"   # write to output file 
+                    json.dumps(future.result(), ensure_ascii=False) + "\n"   # write to output file
                 )
                 file.flush()
 
                 if number % 25 == 0:     #   Progess msg every 25 results
                     print(f"  {number}/{len(jobs)}", flush=True)
 
+        except KeyboardInterrupt:
+            # Ctrl-C: drop every call that has not started yet, so no more API calls are made. Finished results are already saved.
+            executor.shutdown(wait=False, cancel_futures=True)
+            print("\ninterrupted. Finished results are saved; run the same command again to resume.")
+            raise SystemExit(130)
 
-
+        executor.shutdown()
 
     print("done")
