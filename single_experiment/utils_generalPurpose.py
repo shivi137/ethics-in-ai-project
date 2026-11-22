@@ -20,3 +20,19 @@ def block_words(message):    #  check if request reject by llm provider content 
 
 def tokenUsageInfo(tokens_in, tokens_out, reasoning=0):   #  put all token count in dict
     return {"in": tokens_in or 0,  "out": tokens_out or 0, "reasoning": reasoning or 0 }
+
+#------------------------------------------------------------
+
+def deepMergeDicts(baseDict, extraDict):         
+    
+    for key, value in extraDict.items():
+
+        if key in baseDict:
+            if isinstance(baseDict[key], dict) and isinstance(value, dict):
+                deepMergeDicts(baseDict[key], value)                               #recursive call
+            else:
+                baseDict[key] = value
+        else:
+            baseDict[key] = value
+
+    return baseDict

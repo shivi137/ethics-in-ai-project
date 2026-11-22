@@ -135,7 +135,25 @@ def post(url, headers, body, tries=5):    #   sending request to api of llm mode
             raise RuntimeError(error.read().decode()[:500])    #otherwise just throow an error, with first 500 chrs
  
 #-------------------------------------------------------
+def deepMergeDicts(base, extra):  
+    """merges two dictionaries,  inclluding the nested one, without actually replacing the entire nested dict, by recursively calling itself.
+    It is Used in single_gpt.py file
+    
+    arguments:
 
+    return:
+
+    
+    """
+    for key, value in extra.items():
+
+        if isinstance(value, dict) and isinstance(base.get(key), dict):
+            deepMergeDicts(base[key], value)
+
+        else:
+            base[key] = value
+
+    return base
 #-----------------------------------------------------
 
 def block_words(message):    #  check if request reject by llm provider content filter, by checking if msg contains any phrases that indicate as such
