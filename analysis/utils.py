@@ -3,7 +3,7 @@ import os
 import numpy as np, pandas as pd
 
 
-# Finding the paths of the required files  , get currnt path where this file is , curr foldewr above dir , make path to foldr having res of run , path to json of scnarios , path  to csv of human data , path to outp file foldr , and creaste folder oif not there 
+# Finding the paths of the required files and output files , get currnt path where this file is , curr foldewr above dir , make path to foldr having res of run , path to json of scnarios , path  to csv of human data , path to outp file foldr , and creaste folder oif not there 
 
 currentPath = os.path.dirname(os.path.abspath(__file__))
 rootPath = os.path.dirname(currentPath)
