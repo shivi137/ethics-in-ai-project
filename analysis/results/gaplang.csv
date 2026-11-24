@@ -1,0 +1,19 @@
+model,language,english_accuracy_pct,language_accuracy_pct,gap_pct,ci_lo_pct,ci_hi_pct,interval_excludes_zero
+gpt,Hindi,60.5,62.8,2.34,-1.41,6.72,False
+gpt,Hinglish,60.5,62.3,1.88,-3.12,7.34,False
+gpt,Bengali,60.5,61.1,0.63,-3.28,5.16,False
+claude,Hindi,63.4,64.5,1.09,-3.75,6.09,False
+claude,Hinglish,63.4,66.2,2.81,-1.56,7.5,False
+claude,Bengali,63.4,61.3,-2.19,-7.03,2.34,False
+gemini,Hindi,65.8,69.4,3.59,-2.03,9.06,False
+gemini,Hinglish,65.8,65.0,-0.78,-7.5,5.16,False
+gemini,Bengali,65.8,71.7,5.94,1.56,10.63,True
+qwen,Hindi,44.1,52.0,7.97,2.19,13.75,True
+qwen,Hinglish,44.1,52.3,8.28,2.97,13.59,True
+qwen,Bengali,44.1,50.3,6.25,-0.62,12.97,False
+deepseek,Hindi,68.4,63.6,-4.84,-10.0,0.63,False
+deepseek,Hinglish,68.4,69.5,1.09,-4.38,6.88,False
+deepseek,Bengali,68.4,62.2,-6.25,-12.34,-0.31,True
+ALL 5 MODELS,Hindi,60.4,62.5,2.03,-0.75,4.34,False
+ALL 5 MODELS,Hinglish,60.4,63.1,2.66,0.25,4.91,True
+ALL 5 MODELS,Bengali,60.4,61.3,0.87,-0.75,2.56,False

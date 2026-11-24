@@ -1,0 +1,31 @@
+model,language,n_answers,accuracy_pct,ci_lo_pct,ci_hi_pct
+gpt,English,640,60.5,49.1,71.6
+gpt,Hindi,640,62.8,51.6,73.6
+gpt,Hinglish,640,62.3,51.2,72.8
+gpt,Bengali,640,61.1,49.1,72.3
+gpt,ALL,2560,61.7,50.7,72.3
+claude,English,640,63.4,51.6,74.2
+claude,Hindi,640,64.5,53.0,75.5
+claude,Hinglish,640,66.2,54.8,76.9
+claude,Bengali,640,61.3,49.2,72.3
+claude,ALL,2560,63.9,52.5,74.3
+gemini,English,640,65.8,56.2,75.2
+gemini,Hindi,640,69.4,59.5,79.1
+gemini,Hinglish,640,65.0,55.3,74.4
+gemini,Bengali,640,71.7,62.0,80.8
+gemini,ALL,2560,68.0,58.7,76.8
+qwen,English,640,44.1,36.1,51.6
+qwen,Hindi,640,52.0,43.6,60.5
+qwen,Hinglish,640,52.3,44.7,59.8
+qwen,Bengali,640,50.3,41.6,58.8
+qwen,ALL,2560,49.7,42.3,57.0
+deepseek,English,640,68.4,58.6,77.8
+deepseek,Hindi,640,63.6,54.5,72.2
+deepseek,Hinglish,640,69.5,60.6,77.7
+deepseek,Bengali,640,62.2,52.3,71.7
+deepseek,ALL,2560,65.9,57.1,74.3
+ALL 5 MODELS,English,3200,60.4,51.4,69.1
+ALL 5 MODELS,Hindi,3200,62.5,53.6,71.2
+ALL 5 MODELS,Hinglish,3200,63.1,54.7,71.0
+ALL 5 MODELS,Bengali,3200,61.3,52.4,70.0
+ALL 5 MODELS,ALL,12800,61.8,53.2,70.2

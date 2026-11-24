@@ -227,7 +227,7 @@ def saveResults(df, name):   #    its is a function to save the result given by 
 
     df.to_csv(filePath, index=False, encoding="utf-8")   #   save csv file use utf 8 encoding and no indexing of row 
 
-    print("Result written/" + name, f"({len(df)} rows)")   #   print that result has written and name of file and rows number that saved 
+    print("Result saved/" + name, f"({len(df)} rows)")   #   print that result has written and name of file and rows number that saved 
 
 
 def loadHumanData():                         #   its a funct   that  loads  human collected responses data by human csv file loading  from folder   
