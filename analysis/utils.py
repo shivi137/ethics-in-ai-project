@@ -41,7 +41,7 @@ languages = ["English", "Hindi", "Hinglish", "Bengali"]
 # Bootstrap settings
 
 
-randomSeed = 1235   # fixinh seed to get same random no all the time  run again 
+randomSeed = 12345   # fixinh seed to get same random no all the time  run again 
 bootstrapIterations = 5000    # for confid intrval  no of bootstap sample set 
 
 
@@ -227,8 +227,47 @@ def saveResults(df, name):   #    its is a function to save the result given by 
 
     df.to_csv(filePath, index=False, encoding="utf-8")   #   save csv file use utf 8 encoding and no indexing of row 
 
-    print("Result written/" + name, f"({len(df)} res)")   #   print that result has written and name of file and rows number that saved 
+    print("Result written/" + name, f"({len(df)} rows)")   #   print that result has written and name of file and rows number that saved 
 
 
-def loadHumanData():  
-    return 
+def loadHumanData():                         #   its a funct   that  loads  human collected responses data by human csv file loading  from folder   
+
+    human = pd.read_csv(humanPath, encoding="utf-8-sig")    #  reading file of human data csv and storing it it pandaadataframe 
+
+    scenarios = []   #   list to store all ques scenaes of human csv file 
+
+    with open(scenariosPath, encoding="utf-8") as file:   #  opening as file and seeing every line in file firdt that every line is filled not blank and tyen every linen json fomrat is chnaged to pythpn dict and after making dict add it to scneario lost 
+        for line in file:
+            if line.strip():
+                scenarios.append(json.loads(line))
+
+
+
+    engScenID = {}    #   empty  dict to have text of englisdh ques and their scenario ids 
+
+    for scenario in scenarios:   #    go through  all ques in the scen list and checking if that currnt scene is in english or any other langusge and then  saving the text of eng ques as key and id of thet que sceanriod if as value 
+        if scenario["language"] == "English":
+            engScenID[scenario["text"].strip()] = scenario["id"]
+
+    engHuman = human[human["language"] == "English"]    #     only  select humana data response to english questns 
+
+
+    engHuman = engHuman.drop_duplicates("scenario_id")     #   take out  the repeted scen ids  so thqat englsh scn ids appear one tikme only 
+
+    humanIDToScenarioID = {}   #  dictr to mapping of hum,an scn ids to origianl scn ids in the dataset 
+
+    for humanID, text in zip(
+        engHuman["scenario_id"],
+        engHuman["scenario_text"]
+    ):   #   going through all englidh human scnes ids and their text and get human scn ids fromt english answers and also english scnerio tetxt form human anss
+        humanIDToScenarioID[humanID] = engScenID[text.strip()]   #   find matching ids of scenes by englsh text and save that mapping 
+
+    human["id"] = human["scenario_id"].map(humanIDToScenarioID)   
+
+    human = human.rename(columns={
+        "language": "resp_language",
+        "response_category": "label"
+    })   #  cols in panda datagrame re named to resp_language and to tell lang of perosn whol filled the form for data collection and response_category  to telll which optuin it chose
+
+    return human[["respondent_id", "resp_language", "id", "label"]]    #  return the needed cols for ananalysis labels ids and the human who filled the form those langungs and id 
+    

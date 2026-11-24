@@ -1,0 +1,21 @@
+model,domain,n_answers,pct_Act,pct_Clarify,pct_Escalate,pct_Refuse
+gpt,E-commerce,640,36.6,13.4,33.1,16.9
+gpt,Healthcare administration,640,52.2,16.6,25.0,6.2
+gpt,Travel and Transport,640,41.4,38.9,15.0,4.7
+gpt,UPI payments,640,28.7,49.1,12.8,9.4
+claude,E-commerce,640,16.4,32.3,31.9,19.4
+claude,Healthcare administration,640,41.2,31.9,20.6,6.2
+claude,Travel and Transport,640,39.7,41.7,12.3,6.2
+claude,UPI payments,640,25.2,59.4,5.0,10.5
+gemini,E-commerce,640,40.6,7.8,19.1,32.5
+gemini,Healthcare administration,640,54.4,16.9,21.6,7.2
+gemini,Travel and Transport,640,51.4,26.7,11.2,10.6
+gemini,UPI payments,640,34.1,36.2,13.6,16.1
+qwen,E-commerce,640,16.7,26.2,33.4,23.6
+qwen,Healthcare administration,640,34.8,28.6,27.3,9.2
+qwen,Travel and Transport,640,33.6,42.3,16.4,7.7
+qwen,UPI payments,640,16.2,48.0,21.2,14.5
+deepseek,E-commerce,640,39.5,15.3,15.2,30.0
+deepseek,Healthcare administration,640,51.9,18.1,23.8,6.2
+deepseek,Travel and Transport,640,58.6,24.1,11.9,5.5
+deepseek,UPI payments,640,34.1,40.6,13.1,12.2
